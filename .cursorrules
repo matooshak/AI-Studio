@@ -1,0 +1,114 @@
+## Project Overview
+
+- **Type:** Web-based Social Media Automation Platform
+- **Description:** AI Studio is designed to empower small business owners and content creators by automating social media content creation, scheduling, and growth management across platforms like Meta, YouTube, X, and Pinterest. The platform features AI-powered content generation, a real-time analytics dashboard, post scheduling, and social media integrations, all wrapped in a clean, minimalistic design under RightAngle Media's branding guidelines.
+- **Primary Goal:** Empower users to effortlessly generate, schedule, and manage social media content using advanced AI engines (GPT-4o and Claude 3.5 Sonnet), while delivering real-time insights and seamless integrations with major social platforms.
+
+## Project Structure
+
+### Framework-Specific Routing
+
+- **Directory Rules:**
+
+  - **Next.js 14 (App Router):** Enforce the use of the `app/` directory with nested route folders, following the `app/[route]/page.tsx` conventions for route structure logic.
+  - Example 1: "Next.js 14 (App Router)" → `app/[route]/page.tsx` conventions
+  - Example 2: "Next.js (Pages Router)" → `pages/[route].tsx` pattern (not applicable for this project)
+  - Example 3: "React Router 6" → `src/routes/` with `createBrowserRouter` (non-applicable as our tech stack is Next.js 14 App Router)
+
+### Core Directories
+
+- **Versioned Structure:**
+
+  - **app/api:** Next.js 14 API routes with Route Handlers for backend interactions, including database and authentication events via Supabase.
+  - **app/dashboard:** Contains components and pages for the real-time analytics dashboard and central navigation.
+  - **app/onboarding:** Houses components and pages for the guided user registration and initial post creation experience.
+  - **app/content:** Dedicated to AI-powered content generation tools.
+  - **app/scheduler:** Implements the drag-and-drop scheduling interface.
+
+### Key Files
+
+- **Stack-Versioned Patterns:**
+
+  - **app/dashboard/layout.tsx:** Next.js 14 root layout for the dashboard to manage analytics and content scheduling views.
+  - **app/onboarding/page.tsx:** Entry point for user onboarding, ensuring guided interaction per platform.
+
+## Tech Stack Rules
+
+- **Version Enforcement:**
+
+  - **next@14:** Enforce the App Router architecture using the `app/` directory; usage of `getInitialProps` is disallowed.
+  - **typescript:** Adhere to strict type safety and linting rules.
+  - **tailwindcss:** Use Tailwind CSS for rapid, utility-first styling with responsive design practices.
+  - **supabase:** Maintain consistency with Supabase's authentication and real-time database features.
+
+## PRD Compliance
+
+- **Non-Negotiable:**
+
+  - "Ensure fast load times and low latency for AI content generation, with robust error handling for social media API integrations and seamless user experiences across all modules."
+
+## App Flow Integration
+
+- **Stack-Aligned Flow:**
+
+  - **Next.js 14 Auth Flow:** The authentication and onboarding processes are integrated under `app/onboarding/` with clear transitions to the central hub (`app/dashboard/`).
+  - **Content Creation Flow:** Located under `app/content/`, the AI-powered tools for generating text, images, and video components are directly accessible after login.
+  - **Scheduler Integration:** The drag-and-drop scheduler at `app/scheduler/` aligns with the real-time analytics available in `app/dashboard/`, ensuring a fluid user experience.
+
+## Best Practices
+
+- **Next.js 14**
+
+  - Use the App Router exclusively; avoid mixing with the Pages Router.
+  - Leverage React Server Components (RSCs) where beneficial to improve performance.
+  - Optimize code splitting and dynamic imports to enhance load times.
+
+- **TypeScript**
+
+  - Enable strict type checking to reduce runtime errors.
+  - Employ interfaces and type definitions consistently.
+  - Use ESLint and Prettier to maintain code quality and uniform style.
+
+- **Tailwind CSS**
+
+  - Utilize utility classes effectively to reduce custom CSS overhead.
+  - Maintain a consistent design system aligned with RightAngle Media's branding.
+  - Use Tailwind's responsive and state variants to ensure a responsive layout.
+
+- **shadcn**
+
+  - Employ shadcn components to rapidly build accessible and stylistically consistent UI elements.
+  - Customize components according to project design guidelines.
+  - Keep components modular for reusability across the platform.
+
+- **Supabase**
+
+  - Use Supabase authentication and database features to maintain real-time data flow.
+  - Optimize query performance and use proper indexing in the database.
+  - Regularly monitor and test API integrations for consistency.
+
+- **AI Integration (GPT-4o & Claude 3.5 Sonnet)**
+
+  - Optimize API requests to reduce latency in content generation.
+  - Implement caching strategies where appropriate.
+  - Ensure fallback mechanisms in case one service is unavailable.
+
+- **Stripe**
+
+  - Handle payment intent creation and subscriptions securely.
+  - Test thoroughly for different payment scenarios (free, paid, per-user tiers).
+  - Adhere to Stripe's best practices for error handling and webhook integrations.
+
+- **Development Tools (Lovable, Cursor, V0 by Vercel, Bolt)**
+
+  - Automate repetitive tasks with AI-powered scaffolding tools.
+  - Ensure consistency between front-end and full-stack app generation.
+  - Regularly update tooling configurations to match evolving project requirements.
+
+## Rules
+
+- Derive folder/file patterns **directly** from tech stack document versions (e.g., Next.js 14 App Router mandates the use of the `app/` directory exclusively).
+- If Next.js 14 App Router: Enforce the `app/` directory with nested route folders and avoid any `pages/` directory usage.
+- Mirror this logic for any additional frameworks if applicable; do not mix version-specific patterns (e.g., using `pages/` in an App Router project is disallowed).
+- Follow the core route-to-component mappings as specified in the app flow: onboarding, dashboard, content creation, and scheduling.
+- Branding and performance specifications from the PRD must be adhered to without compromise.
