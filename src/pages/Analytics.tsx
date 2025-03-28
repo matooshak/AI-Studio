@@ -66,8 +66,17 @@ const Analytics = () => {
     const currentPeriod = filteredData.slice(Math.floor(filteredData.length / 2));
     const previousPeriod = filteredData.slice(0, Math.floor(filteredData.length / 2));
     
-    const currentSum = currentPeriod.reduce((sum, day) => sum + day[metricName as keyof typeof day] as number, 0);
-    const previousSum = previousPeriod.reduce((sum, day) => sum + day[metricName as keyof typeof day] as number, 0);
+    const currentSum = currentPeriod.reduce((sum, day) => {
+      // Ensure we're working with numbers by using Number() conversion
+      const value = day[metricName as keyof typeof day];
+      return sum + (typeof value === 'number' ? value : 0);
+    }, 0);
+    
+    const previousSum = previousPeriod.reduce((sum, day) => {
+      // Ensure we're working with numbers by using Number() conversion
+      const value = day[metricName as keyof typeof day];
+      return sum + (typeof value === 'number' ? value : 0);
+    }, 0);
     
     if (previousSum === 0) return 100;
     return Math.round(((currentSum - previousSum) / previousSum) * 100);
