@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   FileImage, 
   Type, 
@@ -24,7 +25,8 @@ import {
   Lightbulb,
   Linkedin,
   TrendingUp,
-  Search
+  Search,
+  HelpCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -218,48 +220,57 @@ const Creator = () => {
   
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 relative">
+        {/* Help Tips Popover - Fixed in Bottom Right */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="default" size="icon" className="h-12 w-12 rounded-full shadow-lg">
+                <HelpCircle className="h-6 w-6" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent side="top" align="end" className="w-80 p-0">
+              <div className="p-4 border-b">
+                <h3 className="text-lg font-semibold">Tips for better content</h3>
+              </div>
+              <div className="p-4">
+                <ul className="space-y-2">
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Be specific in your prompts for better results</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Include details about your target audience</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Mention any specific tone or style you want</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Include keywords you want to target</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Ask for variations to choose from</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Specify length and format for best results</span>
+                  </li>
+                </ul>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+
         <section className="space-y-2">
           <h1 className="text-3xl font-bold">Content Creator</h1>
           <p className="text-muted-foreground">
             Create engaging content for your social media channels
           </p>
         </section>
-        
-        {/* Tips Card - Full Width */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tips for better content</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              <li className="flex gap-2">
-                <span className="text-primary">•</span>
-                <span>Be specific in your prompts for better results</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary">•</span>
-                <span>Include details about your target audience</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary">•</span>
-                <span>Mention any specific tone or style you want</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary">•</span>
-                <span>Include keywords you want to target</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary">•</span>
-                <span>Ask for variations to choose from</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary">•</span>
-                <span>Specify length and format for best results</span>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
         
         {/* Trending Ideas Button - Full Width */}
         <Button 
