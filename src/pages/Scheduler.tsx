@@ -26,6 +26,9 @@ import {
   Upload,
   Send,
   Linkedin,
+  MessageSquare,
+  PlaySquare,
+  Eye,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -76,8 +79,10 @@ const Scheduler = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [platformFilter, setPlatformFilter] = useState<string>('all');
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [postContent, setPostContent] = useState('');
   const [selectedPlatformsForPost, setSelectedPlatformsForPost] = useState<string[]>([]);
+  const [postType, setPostType] = useState<string>('text');
   
   const platforms = [
     { id: 'facebook', name: 'Facebook', icon: Facebook },
@@ -124,10 +129,8 @@ const Scheduler = () => {
       return;
     }
     
-    toast.success('Post created and added to schedule!');
-    setIsCreatePostOpen(false);
-    setPostContent('');
-    setSelectedPlatformsForPost([]);
+    // Show preview before final posting
+    setIsPreviewOpen(true);
   };
   
   const handlePostNow = () => {
@@ -141,7 +144,21 @@ const Scheduler = () => {
       return;
     }
     
+    // Show preview before final posting
+    setIsPreviewOpen(true);
+  };
+  
+  const handleConfirmPost = () => {
     toast.success(`Post published immediately to ${selectedPlatformsForPost.length} platforms!`);
+    setIsPreviewOpen(false);
+    setIsCreatePostOpen(false);
+    setPostContent('');
+    setSelectedPlatformsForPost([]);
+  };
+  
+  const handleConfirmSchedule = () => {
+    toast.success('Post scheduled successfully!');
+    setIsPreviewOpen(false);
     setIsCreatePostOpen(false);
     setPostContent('');
     setSelectedPlatformsForPost([]);
@@ -196,8 +213,8 @@ const Scheduler = () => {
               </DialogHeader>
               
               <div className="space-y-4 py-4">
-                <Tabs defaultValue="text" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
+                <Tabs defaultValue="text" className="w-full" onValueChange={(value) => setPostType(value)}>
+                  <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="text" className="flex items-center gap-2">
                       Text
                     </TabsTrigger>
@@ -206,6 +223,12 @@ const Scheduler = () => {
                     </TabsTrigger>
                     <TabsTrigger value="video" className="flex items-center gap-2">
                       Video
+                    </TabsTrigger>
+                    <TabsTrigger value="thread" className="flex items-center gap-2">
+                      X Thread
+                    </TabsTrigger>
+                    <TabsTrigger value="youtube" className="flex items-center gap-2">
+                      YouTube
                     </TabsTrigger>
                   </TabsList>
                   
@@ -267,23 +290,104 @@ const Scheduler = () => {
                       />
                     </div>
                   </TabsContent>
+                  
+                  <TabsContent value="thread" className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="thread-content">X Thread Content</Label>
+                      <p className="text-xs text-muted-foreground">Each paragraph will be a separate tweet in the thread</p>
+                      <Textarea
+                        id="thread-content"
+                        placeholder="Write your thread content here. Separate tweets with a new line..."
+                        value={postContent}
+                        onChange={(e) => setPostContent(e.target.value)}
+                        rows={8}
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="add-images" className="text-sm">Add images to thread?</Label>
+                      <Button variant="outline" size="sm">
+                        <FileImage className="h-4 w-4 mr-2" /> Add Images
+                      </Button>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="youtube" className="space-y-4 mt-4">
+                    <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                      <PlaySquare className="h-10 w-10 mx-auto text-muted-foreground" />
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Upload your YouTube video or enter a YouTube link
+                      </p>
+                      <div className="mt-4 flex flex-col space-y-2">
+                        <Button variant="outline">
+                          Upload Video
+                        </Button>
+                        <p className="text-xs text-muted-foreground">Or</p>
+                        <Label htmlFor="youtube-link">YouTube Link</Label>
+                        <input 
+                          id="youtube-link" 
+                          type="text" 
+                          placeholder="https://youtube.com/watch?v=..." 
+                          className="w-full p-2 border rounded-md"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="youtube-title">Video Title</Label>
+                      <input 
+                        id="youtube-title" 
+                        type="text" 
+                        placeholder="Enter your video title..." 
+                        className="w-full p-2 border rounded-md"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="youtube-description">Video Description</Label>
+                      <Textarea
+                        id="youtube-description"
+                        placeholder="Write a detailed description for your YouTube video..."
+                        value={postContent}
+                        onChange={(e) => setPostContent(e.target.value)}
+                        rows={5}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="youtube-tags">Tags (comma separated)</Label>
+                      <input 
+                        id="youtube-tags" 
+                        type="text" 
+                        placeholder="tag1, tag2, tag3..." 
+                        className="w-full p-2 border rounded-md"
+                      />
+                    </div>
+                  </TabsContent>
                 </Tabs>
                 
                 <div className="space-y-2">
                   <Label>Select platforms</Label>
                   <div className="flex flex-wrap gap-2">
-                    {platforms.map((platform) => (
-                      <Button
-                        key={platform.id}
-                        type="button"
-                        variant={selectedPlatformsForPost.includes(platform.id) ? "default" : "outline"}
-                        className="flex items-center gap-2"
-                        onClick={() => handlePlatformToggle(platform.id)}
-                      >
-                        <platform.icon className="h-4 w-4" />
-                        {platform.name}
-                      </Button>
-                    ))}
+                    {platforms
+                      .filter(platform => {
+                        // Only show relevant platforms based on post type
+                        if (postType === 'thread') return platform.id === 'twitter';
+                        if (postType === 'youtube') return platform.id === 'youtube';
+                        return true;
+                      })
+                      .map((platform) => (
+                        <Button
+                          key={platform.id}
+                          type="button"
+                          variant={selectedPlatformsForPost.includes(platform.id) ? "default" : "outline"}
+                          className="flex items-center gap-2"
+                          onClick={() => handlePlatformToggle(platform.id)}
+                        >
+                          <platform.icon className="h-4 w-4" />
+                          {platform.name}
+                        </Button>
+                      ))
+                    }
                   </div>
                 </div>
               </div>
@@ -297,6 +401,115 @@ const Scheduler = () => {
                     <Send className="h-4 w-4 mr-2" /> Post Now
                   </Button>
                   <Button onClick={handleCreatePost}>
+                    <Clock className="h-4 w-4 mr-2" /> Schedule
+                  </Button>
+                </div>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
+          {/* Preview Dialog */}
+          <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+            <DialogContent className="sm:max-w-[650px]">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" /> Preview Post
+                </DialogTitle>
+                <DialogDescription>
+                  Review how your post will appear on different platforms
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="py-4 space-y-6">
+                <Tabs defaultValue={selectedPlatformsForPost[0] || 'facebook'}>
+                  <TabsList className="flex flex-wrap">
+                    {selectedPlatformsForPost.map(platformId => {
+                      const platform = platforms.find(p => p.id === platformId);
+                      return (
+                        <TabsTrigger key={platformId} value={platformId} className="flex items-center gap-2">
+                          {platform && <platform.icon className="h-4 w-4" />}
+                          {platform?.name}
+                        </TabsTrigger>
+                      );
+                    })}
+                  </TabsList>
+                  
+                  {selectedPlatformsForPost.map(platformId => (
+                    <TabsContent key={platformId} value={platformId} className="mt-4 border rounded-md p-4">
+                      <div className="flex items-center gap-2 mb-2 pb-2 border-b">
+                        {(() => {
+                          const PlatformIcon = platforms.find(p => p.id === platformId)?.icon as React.ElementType;
+                          return PlatformIcon ? <PlatformIcon className="h-5 w-5" /> : null;
+                        })()}
+                        <span className="font-medium">{platforms.find(p => p.id === platformId)?.name} Preview</span>
+                      </div>
+                      
+                      <div className="p-4 bg-muted/30 rounded-md min-h-[200px]">
+                        {postType === 'thread' && platformId === 'twitter' ? (
+                          <div className="space-y-4">
+                            {postContent.split('\n\n').map((tweet, index) => (
+                              <div key={index} className="border p-3 rounded-md bg-white">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                                  <div>
+                                    <p className="font-bold">Your Name</p>
+                                    <p className="text-sm text-gray-500">@yourusername</p>
+                                  </div>
+                                </div>
+                                <p>{tweet}</p>
+                                <p className="text-sm text-gray-500 mt-2">Tweet {index + 1} of {postContent.split('\n\n').length}</p>
+                              </div>
+                            ))}
+                          </div>
+                        ) : postType === 'youtube' && platformId === 'youtube' ? (
+                          <div className="border p-3 rounded-md bg-white">
+                            <div className="aspect-video bg-gray-200 mb-3 rounded flex items-center justify-center">
+                              <PlaySquare className="h-12 w-12 text-gray-400" />
+                            </div>
+                            <h3 className="font-bold mb-1">Your YouTube Video Title</h3>
+                            <p className="text-sm text-gray-700 line-clamp-3">{postContent}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                              <p className="text-sm text-gray-500">Your Channel • Views • Time</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                              <div>
+                                <p className="font-bold">Your Page Name</p>
+                                <p className="text-xs text-gray-500">Just now</p>
+                              </div>
+                            </div>
+                            <p className="mb-3">{postContent}</p>
+                            {postType === 'image' && (
+                              <div className="aspect-video bg-gray-200 rounded flex items-center justify-center">
+                                <FileImage className="h-12 w-12 text-gray-400" />
+                              </div>
+                            )}
+                            {postType === 'video' && (
+                              <div className="aspect-video bg-gray-200 rounded flex items-center justify-center">
+                                <Video className="h-12 w-12 text-gray-400" />
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              </div>
+              
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsPreviewOpen(false)} className="mr-auto">
+                  Back to Edit
+                </Button>
+                <div className="flex gap-2">
+                  <Button variant="secondary" onClick={handleConfirmPost}>
+                    <Send className="h-4 w-4 mr-2" /> Post Now
+                  </Button>
+                  <Button onClick={handleConfirmSchedule}>
                     <Clock className="h-4 w-4 mr-2" /> Schedule
                   </Button>
                 </div>

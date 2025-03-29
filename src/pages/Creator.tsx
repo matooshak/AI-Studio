@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   FileImage, 
   Type, 
@@ -37,6 +36,7 @@ const Creator = () => {
   const [contentFormatType, setContentFormatType] = useState('post');
   const [imageGenerationType, setImageGenerationType] = useState('aiImage');
   const [viralIdeaPrompt, setViralIdeaPrompt] = useState('');
+  const [viralIdeasGenerated, setViralIdeasGenerated] = useState('');
   
   const textPlatforms = [
     { id: 'facebook', name: 'Facebook', icon: Facebook, formats: ['post', 'article'] },
@@ -65,14 +65,6 @@ const Creator = () => {
         ? prev.filter(id => id !== platformId)
         : [...prev, platformId]
     );
-    
-    // Reset content format when platform changes
-    if (contentType === 'text') {
-      const platform = textPlatforms.find(p => p.id === platformId);
-      if (platform && platform.formats.length > 0) {
-        setContentFormatType(platform.formats[0]);
-      }
-    }
   };
   
   const getAvailableFormats = () => {
@@ -153,7 +145,7 @@ const Creator = () => {
                  '4. "What Nobody Tells You About ' + viralIdeaPrompt + ' - Industry Secrets Revealed"\n' +
                  '5. "I Tried ' + viralIdeaPrompt + ' For 30 Days - Here\'s What Happened"';
       
-      setGeneratedContent(result);
+      setViralIdeasGenerated(result);
       setIsGenerating(false);
       toast.success('Viral ideas generated successfully!');
     }, 2000);
@@ -191,9 +183,109 @@ const Creator = () => {
           </p>
         </section>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Content creation panel */}
-          <div className="lg:col-span-2 space-y-6">
+        {/* Tips Card - Full Width */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Tips for better content</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              <li className="flex gap-2">
+                <span className="text-primary">•</span>
+                <span>Be specific in your prompts for better results</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary">•</span>
+                <span>Include details about your target audience</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary">•</span>
+                <span>Mention any specific tone or style you want</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary">•</span>
+                <span>Include keywords you want to target</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary">•</span>
+                <span>Ask for variations to choose from</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary">•</span>
+                <span>Specify length and format for best results</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+        
+        {/* Main Content Area - Two Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Viral Ideas Generator - Left Column */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-yellow-500" /> Generate Viral Ideas
+                </CardTitle>
+                <CardDescription>
+                  Get winning content ideas for your niche
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="viral-topic">Enter a topic</Label>
+                  <Textarea
+                    id="viral-topic"
+                    placeholder="E.g. Sustainable fashion, home workouts, digital marketing, etc."
+                    value={viralIdeaPrompt}
+                    onChange={(e) => setViralIdeaPrompt(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <Button 
+                  onClick={handleGenerateViralIdeas} 
+                  disabled={isGenerating} 
+                  className="w-full"
+                  variant="secondary"
+                >
+                  {isGenerating ? (
+                    <>Generating<span className="animate-pulse">...</span></>
+                  ) : (
+                    <>Generate Viral Ideas</>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Viral Ideas Results */}
+            {viralIdeasGenerated && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Viral Content Ideas</CardTitle>
+                  <CardDescription>
+                    Use these ideas to inspire your content strategy
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 rounded-lg border bg-muted/30 min-h-[200px] whitespace-pre-line">
+                    {viralIdeasGenerated}
+                  </div>
+                  
+                  <div className="flex gap-4">
+                    <Button variant="outline" onClick={() => toast.success('Ideas saved!')}>
+                      Save Ideas
+                    </Button>
+                    <Button variant="secondary" onClick={() => navigator.clipboard.writeText(viralIdeasGenerated)}>
+                      Copy to Clipboard
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+          
+          {/* Content Creator - Right Column */}
+          <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Create new content</CardTitle>
@@ -235,25 +327,24 @@ const Creator = () => {
                     {selectedPlatforms.length > 0 && getAvailableFormats().length > 0 && (
                       <div className="space-y-2">
                         <Label>Content Format</Label>
-                        <Select 
-                          value={contentFormatType} 
-                          onValueChange={setContentFormatType}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select format" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {getAvailableFormats().map(format => (
-                              <SelectItem key={format} value={format}>
-                                {format.charAt(0).toUpperCase() + format.slice(1)}
-                                {format === 'post' && ' Caption'}
-                                {format === 'description' && ' Video Description'}
-                                {format === 'thumbnail' && ' Thumbnail Idea'}
-                                {format === 'heading' && ' Video Heading'}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="flex flex-wrap gap-2">
+                          {getAvailableFormats().map(format => (
+                            <Button
+                              key={format}
+                              type="button"
+                              variant={contentFormatType === format ? "default" : "outline"}
+                              onClick={() => setContentFormatType(format)}
+                            >
+                              {format === 'post' && 'Post Caption'}
+                              {format === 'article' && 'Article'}
+                              {format === 'tweet' && 'Single Tweet'}
+                              {format === 'thread' && 'Thread'}
+                              {format === 'description' && 'Video Description'}
+                              {format === 'thumbnail' && 'Thumbnail Idea'}
+                              {format === 'heading' && 'Video Heading'}
+                            </Button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </TabsContent>
@@ -401,6 +492,7 @@ const Creator = () => {
               </CardContent>
             </Card>
             
+            {/* Generated Content Results */}
             {generatedContent && (
               <Card>
                 <CardHeader>
@@ -428,75 +520,6 @@ const Creator = () => {
                 </CardContent>
               </Card>
             )}
-          </div>
-          
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Viral Ideas Generator Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-yellow-500" /> Viral Ideas Generator
-                </CardTitle>
-                <CardDescription>
-                  Get winning content ideas for your niche
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="viral-topic">Enter a topic</Label>
-                  <Textarea
-                    id="viral-topic"
-                    placeholder="E.g. Sustainable fashion, home workouts, digital marketing, etc."
-                    value={viralIdeaPrompt}
-                    onChange={(e) => setViralIdeaPrompt(e.target.value)}
-                    rows={3}
-                  />
-                </div>
-                <Button 
-                  onClick={handleGenerateViralIdeas} 
-                  disabled={isGenerating} 
-                  className="w-full"
-                  variant="secondary"
-                >
-                  {isGenerating ? (
-                    <>Generating<span className="animate-pulse">...</span></>
-                  ) : (
-                    <>Generate Viral Ideas</>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Tips for better content</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex gap-2">
-                    <span className="text-primary">•</span>
-                    <span>Be specific in your prompts for better results</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-primary">•</span>
-                    <span>Include details about your target audience</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-primary">•</span>
-                    <span>Mention any specific tone or style you want</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-primary">•</span>
-                    <span>Include keywords you want to target</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-primary">•</span>
-                    <span>Ask for variations to choose from</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
