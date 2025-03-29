@@ -23,10 +23,14 @@ import {
   PinIcon,
   Lightbulb,
   Linkedin,
+  TrendingUp,
+  Search
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const Creator = () => {
+  const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
   const [contentType, setContentType] = useState('text');
   const [prompt, setPrompt] = useState('');
@@ -35,6 +39,7 @@ const Creator = () => {
   const [creativity, setCreativity] = useState([50]);
   const [contentFormatType, setContentFormatType] = useState('post');
   const [imageGenerationType, setImageGenerationType] = useState('aiImage');
+  const [videoContentType, setVideoContentType] = useState('videoScript');
   const [viralIdeaPrompt, setViralIdeaPrompt] = useState('');
   const [viralIdeasGenerated, setViralIdeasGenerated] = useState('');
   
@@ -102,7 +107,18 @@ const Creator = () => {
       
       switch (contentType) {
         case 'text':
-          result = `Here's your generated ${contentFormatType} for ${selectedPlatforms.join(', ')}:\n\n✨ ${prompt}\n\nOur team has been working hard to bring you the best experience possible. We can't wait to share more exciting updates with you soon! #Innovation #Growth #SocialMedia`;
+          if (contentFormatType === 'thread') {
+            result = `Thread for Twitter/X:\n\n` + 
+                     `1/5 ${prompt} - Let's dive into why this matters for your business.\n\n` +
+                     `[IMAGE: Business meeting with team discussing strategy]\n\n` +
+                     `2/5 First, understand that 78% of consumers make decisions based on social presence. Your competitors are already leveraging this.\n\n` +
+                     `3/5 Our platform helps you schedule content across platforms with just a few clicks, saving you 5+ hours every week.\n\n` +
+                     `[VIDEO: Quick demo of the scheduling interface]\n\n` +
+                     `4/5 "Since using this tool, we've seen a 43% increase in engagement" - Jane Smith, Marketing Director at TechCorp\n\n` +
+                     `5/5 Ready to transform your social media strategy? Start your free trial today at example.com #SocialMedia #MarketingTips`;
+          } else {
+            result = `Here's your generated ${contentFormatType} for ${selectedPlatforms.join(', ')}:\n\n✨ ${prompt}\n\nOur team has been working hard to bring you the best experience possible. We can't wait to share more exciting updates with you soon! #Innovation #Growth #SocialMedia`;
+          }
           break;
         case 'image':
           if (imageGenerationType === 'aiImage') {
@@ -112,13 +128,35 @@ const Creator = () => {
           }
           break;
         case 'video':
-          result = 'Video script and storyboard generated based on your prompt. Use this with video creation tools like Veed.io:\n\n' + 
-                   'Scene 1: Intro - Brief overview of the topic\n' + 
-                   'Scene 2: Problem statement\n' + 
-                   'Scene 3: Solution reveal\n' + 
-                   'Scene 4: Benefits showcase\n' +
-                   'Scene 5: Call to action\n\n' +
-                   'Recommended visuals: bright colors, minimal text overlays, authentic footage';
+          if (videoContentType === 'videoScript') {
+            result = 'Video script and storyboard generated based on your prompt:\n\n' + 
+                    'Scene 1: Intro - Brief overview of the topic\n' + 
+                    'Scene 2: Problem statement\n' + 
+                    'Scene 3: Solution reveal\n' + 
+                    'Scene 4: Benefits showcase\n' +
+                    'Scene 5: Call to action\n\n' +
+                    'Recommended visuals: bright colors, minimal text overlays, authentic footage';
+          } else if (videoContentType === 'veedioPrompt') {
+            result = `Veed.io Prompt for "${prompt}":\n\n` +
+                    `Create a 60-second video with the following structure:\n` +
+                    `- 0:00-0:10: Hook viewers with a surprising statistic about ${prompt}\n` +
+                    `- 0:10-0:25: Present the challenge or pain point\n` +
+                    `- 0:25-0:45: Demonstrate the solution with screen recording\n` +
+                    `- 0:45-0:60: Call to action with animated text overlay\n\n` +
+                    `Use the brand color palette and add background music that builds excitement.`;
+          } else if (videoContentType === 'otherVideoTools') {
+            result = `General video creation prompt for "${prompt}":\n\n` +
+                    `Style: Modern, fast-paced, informative\n` +
+                    `Duration: 2-3 minutes\n` +
+                    `Structure:\n` +
+                    `1. Attention-grabbing opener (5-7 seconds)\n` +
+                    `2. Problem statement (20-30 seconds)\n` +
+                    `3. Solution introduction (30-45 seconds)\n` +
+                    `4. Feature showcase (45-60 seconds)\n` +
+                    `5. Testimonial or case study (20-30 seconds)\n` +
+                    `6. Call to action (10-15 seconds)\n\n` +
+                    `Technical specs: 1080p, captions required, optimized for mobile viewing`;
+          }
           break;
       }
       
@@ -158,6 +196,11 @@ const Creator = () => {
   const handleScheduleContent = () => {
     toast.success('Redirecting to scheduler...');
     // In a real app, this would redirect to the scheduler with the content pre-filled
+  };
+  
+  const navigateToTrendingIdeas = () => {
+    navigate('/trending');
+    toast.success('Navigating to trending ideas...');
   };
   
   const getPlatformsList = () => {
@@ -217,6 +260,17 @@ const Creator = () => {
             </ul>
           </CardContent>
         </Card>
+        
+        {/* Trending Ideas Button - Full Width */}
+        <Button 
+          onClick={navigateToTrendingIdeas} 
+          variant="outline" 
+          className="w-full flex justify-center items-center gap-2 py-6"
+        >
+          <TrendingUp className="h-5 w-5" /> 
+          <span className="text-lg">Explore Trending Topics For Content Ideas</span>
+          <Search className="h-5 w-5 ml-2" />
+        </Button>
         
         {/* Main Content Area - Two Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -402,22 +456,22 @@ const Creator = () => {
                       <div className="flex flex-wrap gap-2">
                         <Button
                           type="button"
-                          variant="outline"
-                          className="flex items-center gap-2"
+                          variant={videoContentType === 'videoScript' ? "default" : "outline"}
+                          onClick={() => setVideoContentType('videoScript')}
                         >
                           Video Script
                         </Button>
                         <Button
                           type="button"
-                          variant="outline"
-                          className="flex items-center gap-2"
+                          variant={videoContentType === 'veedioPrompt' ? "default" : "outline"}
+                          onClick={() => setVideoContentType('veedioPrompt')}
                         >
                           Veed.io Prompt
                         </Button>
                         <Button
                           type="button"
-                          variant="outline"
-                          className="flex items-center gap-2"
+                          variant={videoContentType === 'otherVideoTools' ? "default" : "outline"}
+                          onClick={() => setVideoContentType('otherVideoTools')}
                         >
                           Other Video Tools
                         </Button>

@@ -18,6 +18,7 @@ import Analytics from "./pages/Analytics";
 import AIAssistant from "./pages/AIAssistant";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import TrendingIdeas from "./pages/TrendingIdeas";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/ai-assistant" element={<AIAssistant />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/trending" element={<TrendingIdeas />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
