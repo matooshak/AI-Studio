@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   FileImage, 
   Type, 
@@ -21,6 +22,8 @@ import {
   Twitter, 
   Youtube, 
   PinIcon,
+  Lightbulb,
+  Linkedin,
 } from 'lucide-react';
 import { aiModels } from '@/lib/data';
 import { toast } from 'sonner';
@@ -33,13 +36,28 @@ const Creator = () => {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [creativity, setCreativity] = useState([50]);
   const [useAdvancedAI, setUseAdvancedAI] = useState(false);
+  const [contentFormatType, setContentFormatType] = useState('post');
+  const [imageGenerationType, setImageGenerationType] = useState('aiImage');
   
-  const platforms = [
+  const textPlatforms = [
+    { id: 'facebook', name: 'Facebook', icon: Facebook, formats: ['post', 'article'] },
+    { id: 'instagram', name: 'Instagram', icon: Instagram, formats: ['post'] },
+    { id: 'twitter', name: 'Twitter', icon: Twitter, formats: ['tweet', 'thread'] },
+    { id: 'youtube', name: 'Youtube', icon: Youtube, formats: ['description', 'thumbnail', 'heading'] },
+    { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, formats: ['post', 'article'] },
+  ];
+  
+  const imagePlatforms = [
     { id: 'facebook', name: 'Facebook', icon: Facebook },
     { id: 'instagram', name: 'Instagram', icon: Instagram },
     { id: 'twitter', name: 'Twitter', icon: Twitter },
-    { id: 'youtube', name: 'Youtube', icon: Youtube },
     { id: 'pinterest', name: 'Pinterest', icon: PinIcon },
+  ];
+  
+  const videoPlatforms = [
+    { id: 'facebook', name: 'Facebook', icon: Facebook },
+    { id: 'instagram', name: 'Instagram', icon: Instagram },
+    { id: 'youtube', name: 'Youtube', icon: Youtube },
   ];
   
   const handlePlatformToggle = (platformId: string) => {
@@ -48,6 +66,30 @@ const Creator = () => {
         ? prev.filter(id => id !== platformId)
         : [...prev, platformId]
     );
+    
+    // Reset content format when platform changes
+    if (contentType === 'text') {
+      const platform = textPlatforms.find(p => p.id === platformId);
+      if (platform && platform.formats.length > 0) {
+        setContentFormatType(platform.formats[0]);
+      }
+    }
+  };
+  
+  const getAvailableFormats = () => {
+    if (selectedPlatforms.length === 0) return [];
+    
+    // If multiple platforms selected, find common formats
+    if (selectedPlatforms.length > 1) {
+      const platformsData = textPlatforms.filter(p => selectedPlatforms.includes(p.id));
+      
+      // For simplicity, just use the formats of the first selected platform
+      return platformsData[0]?.formats || [];
+    }
+    
+    // Single platform selected
+    const platform = textPlatforms.find(p => p.id === selectedPlatforms[0]);
+    return platform?.formats || [];
   };
   
   const handleGenerate = () => {
@@ -69,14 +111,31 @@ const Creator = () => {
       
       switch (contentType) {
         case 'text':
-          result = `Here's your generated post for ${selectedPlatforms.join(', ')}:\n\n✨ ${prompt}\n\nOur team has been working hard to bring you the best experience possible. We can't wait to share more exciting updates with you soon! #Innovation #Growth #SocialMedia`;
+          result = `Here's your generated ${contentFormatType} for ${selectedPlatforms.join(', ')}:\n\n✨ ${prompt}\n\nOur team has been working hard to bring you the best experience possible. We can't wait to share more exciting updates with you soon! #Innovation #Growth #SocialMedia`;
           break;
         case 'image':
-          // In a real app, this would be a URL to a generated image
-          result = 'Image description would be generated here, and the actual image would be displayed';
+          if (imageGenerationType === 'aiImage') {
+            result = 'AI-generated image would be displayed here';
+          } else {
+            result = `Here's a prompt to use on ${imageGenerationType}:\n\n"${prompt}" - Create a vibrant, professional image showing ${prompt} with natural lighting and engaging composition. Use colors that align with your brand identity.`;
+          }
           break;
         case 'video':
-          result = 'Video script and storyboard would be generated here, along with a preview of the video';
+          result = 'Video script and storyboard generated based on your prompt. Use this with video creation tools like Veed.io:\n\n' + 
+                   'Scene 1: Intro - Brief overview of the topic\n' + 
+                   'Scene 2: Problem statement\n' + 
+                   'Scene 3: Solution reveal\n' + 
+                   'Scene 4: Benefits showcase\n' +
+                   'Scene 5: Call to action\n\n' +
+                   'Recommended visuals: bright colors, minimal text overlays, authentic footage';
+          break;
+        case 'ideas':
+          result = 'Here are 5 viral content ideas based on your topic:\n\n' +
+                   '1. "5 Surprising Facts About ' + prompt + ' That Will Blow Your Mind"\n' +
+                   '2. "The ' + prompt + ' Challenge That\'s Taking Over Social Media"\n' +
+                   '3. "How ' + prompt + ' Is Changing The Way We Think About Business"\n' +
+                   '4. "What Nobody Tells You About ' + prompt + ' - Industry Secrets Revealed"\n' +
+                   '5. "I Tried ' + prompt + ' For 30 Days - Here\'s What Happened"';
           break;
       }
       
@@ -93,6 +152,19 @@ const Creator = () => {
   const handleScheduleContent = () => {
     toast.success('Redirecting to scheduler...');
     // In a real app, this would redirect to the scheduler with the content pre-filled
+  };
+  
+  const getPlatformsList = () => {
+    switch (contentType) {
+      case 'text':
+        return textPlatforms;
+      case 'image':
+        return imagePlatforms;
+      case 'video':
+        return videoPlatforms;
+      default:
+        return textPlatforms;
+    }
   };
   
   return (
@@ -116,8 +188,13 @@ const Creator = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Tabs defaultValue="text" onValueChange={(value) => setContentType(value)}>
-                  <TabsList className="grid w-full grid-cols-3">
+                <Tabs defaultValue="text" onValueChange={(value) => {
+                  setContentType(value);
+                  setSelectedPlatforms([]);
+                  setContentFormatType('post');
+                  setImageGenerationType('aiImage');
+                }}>
+                  <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="text" className="flex items-center gap-2">
                       <Type className="h-4 w-4" /> Text
                     </TabsTrigger>
@@ -126,6 +203,9 @@ const Creator = () => {
                     </TabsTrigger>
                     <TabsTrigger value="video" className="flex items-center gap-2">
                       <Video className="h-4 w-4" /> Video
+                    </TabsTrigger>
+                    <TabsTrigger value="ideas" className="flex items-center gap-2">
+                      <Lightbulb className="h-4 w-4" /> Viral Ideas
                     </TabsTrigger>
                   </TabsList>
                   
@@ -140,9 +220,68 @@ const Creator = () => {
                         rows={3}
                       />
                     </div>
+                    
+                    {selectedPlatforms.length > 0 && getAvailableFormats().length > 0 && (
+                      <div className="space-y-2">
+                        <Label>Content Format</Label>
+                        <Select 
+                          value={contentFormatType} 
+                          onValueChange={setContentFormatType}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select format" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getAvailableFormats().map(format => (
+                              <SelectItem key={format} value={format}>
+                                {format.charAt(0).toUpperCase() + format.slice(1)}
+                                {format === 'post' && ' Caption'}
+                                {format === 'description' && ' Video Description'}
+                                {format === 'thumbnail' && ' Thumbnail Idea'}
+                                {format === 'heading' && ' Video Heading'}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </TabsContent>
                   
                   <TabsContent value="image" className="pt-4 space-y-4">
+                    <div className="space-y-2">
+                      <Label>Image Generation Type</Label>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant={imageGenerationType === 'aiImage' ? "default" : "outline"}
+                          onClick={() => setImageGenerationType('aiImage')}
+                        >
+                          Generate AI Image
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={imageGenerationType === 'canva' ? "default" : "outline"}
+                          onClick={() => setImageGenerationType('canva')}
+                        >
+                          Canva Prompt
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={imageGenerationType === 'midjourney' ? "default" : "outline"}
+                          onClick={() => setImageGenerationType('midjourney')}
+                        >
+                          MidJourney Prompt
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={imageGenerationType === 'freepik' ? "default" : "outline"}
+                          onClick={() => setImageGenerationType('freepik')}
+                        >
+                          Freepik Prompt
+                        </Button>
+                      </div>
+                    </div>
+                    
                     <div className="space-y-2">
                       <Label htmlFor="image-prompt">Describe the image</Label>
                       <Textarea
@@ -157,6 +296,33 @@ const Creator = () => {
                   
                   <TabsContent value="video" className="pt-4 space-y-4">
                     <div className="space-y-2">
+                      <Label>Video Content Type</Label>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex items-center gap-2"
+                        >
+                          Video Script
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex items-center gap-2"
+                        >
+                          Veed.io Prompt
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex items-center gap-2"
+                        >
+                          Other Video Tools
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
                       <Label htmlFor="video-prompt">Describe the video</Label>
                       <Textarea
                         id="video-prompt"
@@ -167,25 +333,40 @@ const Creator = () => {
                       />
                     </div>
                   </TabsContent>
+                  
+                  <TabsContent value="ideas" className="pt-4 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="ideas-prompt">Enter a topic to generate viral content ideas</Label>
+                      <Textarea
+                        id="ideas-prompt"
+                        placeholder="E.g. Sustainable fashion, home workouts, digital marketing, etc."
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+                  </TabsContent>
                 </Tabs>
                 
-                <div className="space-y-2">
-                  <Label>Select platforms</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {platforms.map((platform) => (
-                      <Button
-                        key={platform.id}
-                        type="button"
-                        variant={selectedPlatforms.includes(platform.id) ? "default" : "outline"}
-                        className="flex items-center gap-2"
-                        onClick={() => handlePlatformToggle(platform.id)}
-                      >
-                        <platform.icon className="h-4 w-4" />
-                        {platform.name}
-                      </Button>
-                    ))}
+                {contentType !== 'ideas' && (
+                  <div className="space-y-2">
+                    <Label>Select platforms</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {getPlatformsList().map((platform) => (
+                        <Button
+                          key={platform.id}
+                          type="button"
+                          variant={selectedPlatforms.includes(platform.id) ? "default" : "outline"}
+                          className="flex items-center gap-2"
+                          onClick={() => handlePlatformToggle(platform.id)}
+                        >
+                          <platform.icon className="h-4 w-4" />
+                          {platform.name}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
                 
                 <div className="space-y-4 pt-4 border-t">
                   <div className="flex items-center justify-between">

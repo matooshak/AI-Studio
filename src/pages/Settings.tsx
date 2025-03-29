@@ -62,20 +62,22 @@ const Settings = () => {
         </section>
         
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 lg:w-[600px] mb-6">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" /> Profile
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
-              <Bell className="h-4 w-4" /> Notifications
-            </TabsTrigger>
-            <TabsTrigger value="connections" className="flex items-center gap-2">
-              <Facebook className="h-4 w-4" /> Connections
-            </TabsTrigger>
-            <TabsTrigger value="billing" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" /> Billing
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto pb-2">
+            <TabsList className="flex w-full md:w-auto md:inline-flex">
+              <TabsTrigger value="profile" className="flex items-center gap-2">
+                <User className="h-4 w-4" /> Profile
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="flex items-center gap-2">
+                <Bell className="h-4 w-4" /> Notifications
+              </TabsTrigger>
+              <TabsTrigger value="connections" className="flex items-center gap-2">
+                <Facebook className="h-4 w-4" /> Connections
+              </TabsTrigger>
+              <TabsTrigger value="billing" className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" /> Billing
+              </TabsTrigger>
+            </TabsList>
+          </div>
           
           {/* Profile Settings */}
           <TabsContent value="profile">

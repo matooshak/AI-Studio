@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { mockPosts, PlatformType, getPlatformColor } from '@/lib/data';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   Facebook,
   Instagram,
@@ -19,6 +21,11 @@ import {
   XCircle,
   Clock,
   Filter,
+  FileImage,
+  Video,
+  Upload,
+  Send,
+  Linkedin,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -35,6 +42,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -52,6 +60,8 @@ const getPlatformIcon = (platform: PlatformType) => {
       return <Youtube className="h-4 w-4" />;
     case 'pinterest':
       return <PinIcon className="h-4 w-4" />;
+    case 'linkedin':
+      return <Linkedin className="h-4 w-4" />;
   }
 };
 
@@ -65,6 +75,26 @@ const Scheduler = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [platformFilter, setPlatformFilter] = useState<string>('all');
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [postContent, setPostContent] = useState('');
+  const [selectedPlatformsForPost, setSelectedPlatformsForPost] = useState<string[]>([]);
+  
+  const platforms = [
+    { id: 'facebook', name: 'Facebook', icon: Facebook },
+    { id: 'instagram', name: 'Instagram', icon: Instagram },
+    { id: 'twitter', name: 'Twitter', icon: Twitter },
+    { id: 'youtube', name: 'Youtube', icon: Youtube },
+    { id: 'pinterest', name: 'Pinterest', icon: PinIcon },
+    { id: 'linkedin', name: 'LinkedIn', icon: Linkedin },
+  ];
+  
+  const handlePlatformToggle = (platformId: string) => {
+    setSelectedPlatformsForPost(prev => 
+      prev.includes(platformId)
+        ? prev.filter(id => id !== platformId)
+        : [...prev, platformId]
+    );
+  };
   
   const handleApprove = (postId: string) => {
     toast.success('Post approved successfully!');
@@ -81,6 +111,40 @@ const Scheduler = () => {
   
   const handleDeleteClick = (postId: string) => {
     toast.success('Post deleted successfully!');
+  };
+  
+  const handleCreatePost = () => {
+    if (!postContent) {
+      toast.error('Please enter content for your post');
+      return;
+    }
+    
+    if (selectedPlatformsForPost.length === 0) {
+      toast.error('Please select at least one platform');
+      return;
+    }
+    
+    toast.success('Post created and added to schedule!');
+    setIsCreatePostOpen(false);
+    setPostContent('');
+    setSelectedPlatformsForPost([]);
+  };
+  
+  const handlePostNow = () => {
+    if (!postContent) {
+      toast.error('Please enter content for your post');
+      return;
+    }
+    
+    if (selectedPlatformsForPost.length === 0) {
+      toast.error('Please select at least one platform');
+      return;
+    }
+    
+    toast.success(`Post published immediately to ${selectedPlatformsForPost.length} platforms!`);
+    setIsCreatePostOpen(false);
+    setPostContent('');
+    setSelectedPlatformsForPost([]);
   };
   
   const filteredPosts = mockPosts.filter(post => {
@@ -109,11 +173,136 @@ const Scheduler = () => {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <section className="space-y-2">
-          <h1 className="text-3xl font-bold">Content Scheduler</h1>
-          <p className="text-muted-foreground">
-            Schedule, manage, and approve your social media posts
-          </p>
+        <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+          <div>
+            <h1 className="text-3xl font-bold">Content Scheduler</h1>
+            <p className="text-muted-foreground">
+              Schedule, manage, and approve your social media posts
+            </p>
+          </div>
+          
+          <Dialog open={isCreatePostOpen} onOpenChange={setIsCreatePostOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Upload className="h-4 w-4" /> Create New Post
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[550px]">
+              <DialogHeader>
+                <DialogTitle>Create New Post</DialogTitle>
+                <DialogDescription>
+                  Create and schedule a new post for your social platforms
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 py-4">
+                <Tabs defaultValue="text" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="text" className="flex items-center gap-2">
+                      Text
+                    </TabsTrigger>
+                    <TabsTrigger value="image" className="flex items-center gap-2">
+                      Image
+                    </TabsTrigger>
+                    <TabsTrigger value="video" className="flex items-center gap-2">
+                      Video
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="text" className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="post-content">Post content</Label>
+                      <Textarea
+                        id="post-content"
+                        placeholder="Write your post content here..."
+                        value={postContent}
+                        onChange={(e) => setPostContent(e.target.value)}
+                        rows={5}
+                      />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="image" className="space-y-4 mt-4">
+                    <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                      <FileImage className="h-10 w-10 mx-auto text-muted-foreground" />
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Drag and drop an image here, or click to select
+                      </p>
+                      <Button variant="outline" className="mt-4">
+                        Upload Image
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="image-caption">Image caption</Label>
+                      <Textarea
+                        id="image-caption"
+                        placeholder="Write a caption for your image..."
+                        value={postContent}
+                        onChange={(e) => setPostContent(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="video" className="space-y-4 mt-4">
+                    <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                      <Video className="h-10 w-10 mx-auto text-muted-foreground" />
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Drag and drop a video here, or click to select
+                      </p>
+                      <Button variant="outline" className="mt-4">
+                        Upload Video
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="video-description">Video description</Label>
+                      <Textarea
+                        id="video-description"
+                        placeholder="Write a description for your video..."
+                        value={postContent}
+                        onChange={(e) => setPostContent(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+                  </TabsContent>
+                </Tabs>
+                
+                <div className="space-y-2">
+                  <Label>Select platforms</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {platforms.map((platform) => (
+                      <Button
+                        key={platform.id}
+                        type="button"
+                        variant={selectedPlatformsForPost.includes(platform.id) ? "default" : "outline"}
+                        className="flex items-center gap-2"
+                        onClick={() => handlePlatformToggle(platform.id)}
+                      >
+                        <platform.icon className="h-4 w-4" />
+                        {platform.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+                <Button variant="outline" onClick={() => setIsCreatePostOpen(false)} className="sm:mr-auto">
+                  Cancel
+                </Button>
+                <div className="flex gap-2">
+                  <Button variant="secondary" onClick={handlePostNow}>
+                    <Send className="h-4 w-4 mr-2" /> Post Now
+                  </Button>
+                  <Button onClick={handleCreatePost}>
+                    <Clock className="h-4 w-4 mr-2" /> Schedule
+                  </Button>
+                </div>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </section>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
