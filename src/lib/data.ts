@@ -1,7 +1,6 @@
-
 // Mock data for AI Studio
 
-export type PlatformType = 'facebook' | 'instagram' | 'twitter' | 'youtube' | 'pinterest';
+export type PlatformType = 'facebook' | 'instagram' | 'twitter' | 'youtube' | 'pinterest' | 'linkedin';
 
 export interface Post {
   id: string;
@@ -118,6 +117,8 @@ export const getPlatformColor = (platform: PlatformType): string => {
       return '#FF0000';
     case 'pinterest':
       return '#E60023';
+    case 'linkedin':
+      return '#0077B5';
     default:
       return '#9b87f5'; // Default to primary purple
   }
@@ -136,6 +137,8 @@ export const getPlatformIcon = (platform: PlatformType): string => {
       return 'Youtube';
     case 'pinterest':
       return 'PinIcon';
+    case 'linkedin':
+      return 'Linkedin';
     default:
       return 'Globe';
   }
