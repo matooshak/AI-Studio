@@ -143,19 +143,3 @@ export const getPlatformIcon = (platform: PlatformType): string => {
       return 'Globe';
   }
 };
-
-// Get AI model name and description
-export const aiModels = [
-  {
-    id: 'gpt4o',
-    name: 'GPT-4o',
-    description: 'Most powerful model for diverse content creation',
-    isDefault: true,
-  },
-  {
-    id: 'claude',
-    name: 'Claude 3.5 Sonnet',
-    description: 'Excellent for nuanced, creative, and factual content',
-    isDefault: false,
-  },
-];

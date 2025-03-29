@@ -25,7 +25,6 @@ import {
   Lightbulb,
   Linkedin,
 } from 'lucide-react';
-import { aiModels } from '@/lib/data';
 import { toast } from 'sonner';
 
 const Creator = () => {
@@ -35,9 +34,9 @@ const Creator = () => {
   const [generatedContent, setGeneratedContent] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [creativity, setCreativity] = useState([50]);
-  const [useAdvancedAI, setUseAdvancedAI] = useState(false);
   const [contentFormatType, setContentFormatType] = useState('post');
   const [imageGenerationType, setImageGenerationType] = useState('aiImage');
+  const [viralIdeaPrompt, setViralIdeaPrompt] = useState('');
   
   const textPlatforms = [
     { id: 'facebook', name: 'Facebook', icon: Facebook, formats: ['post', 'article'] },
@@ -98,7 +97,7 @@ const Creator = () => {
       return;
     }
     
-    if (selectedPlatforms.length === 0) {
+    if (selectedPlatforms.length === 0 && contentType !== 'ideas') {
       toast.error('Please select at least one platform');
       return;
     }
@@ -129,19 +128,34 @@ const Creator = () => {
                    'Scene 5: Call to action\n\n' +
                    'Recommended visuals: bright colors, minimal text overlays, authentic footage';
           break;
-        case 'ideas':
-          result = 'Here are 5 viral content ideas based on your topic:\n\n' +
-                   '1. "5 Surprising Facts About ' + prompt + ' That Will Blow Your Mind"\n' +
-                   '2. "The ' + prompt + ' Challenge That\'s Taking Over Social Media"\n' +
-                   '3. "How ' + prompt + ' Is Changing The Way We Think About Business"\n' +
-                   '4. "What Nobody Tells You About ' + prompt + ' - Industry Secrets Revealed"\n' +
-                   '5. "I Tried ' + prompt + ' For 30 Days - Here\'s What Happened"';
-          break;
       }
       
       setGeneratedContent(result);
       setIsGenerating(false);
       toast.success('Content generated successfully!');
+    }, 2000);
+  };
+  
+  const handleGenerateViralIdeas = () => {
+    if (!viralIdeaPrompt) {
+      toast.error('Please enter a topic for viral content ideas');
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    // Simulate AI generation for viral ideas
+    setTimeout(() => {
+      const result = 'Here are 5 viral content ideas based on your topic:\n\n' +
+                 '1. "5 Surprising Facts About ' + viralIdeaPrompt + ' That Will Blow Your Mind"\n' +
+                 '2. "The ' + viralIdeaPrompt + ' Challenge That\'s Taking Over Social Media"\n' +
+                 '3. "How ' + viralIdeaPrompt + ' Is Changing The Way We Think About Business"\n' +
+                 '4. "What Nobody Tells You About ' + viralIdeaPrompt + ' - Industry Secrets Revealed"\n' +
+                 '5. "I Tried ' + viralIdeaPrompt + ' For 30 Days - Here\'s What Happened"';
+      
+      setGeneratedContent(result);
+      setIsGenerating(false);
+      toast.success('Viral ideas generated successfully!');
     }, 2000);
   };
   
@@ -194,7 +208,7 @@ const Creator = () => {
                   setContentFormatType('post');
                   setImageGenerationType('aiImage');
                 }}>
-                  <TabsList className="grid w-full grid-cols-4">
+                  <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="text" className="flex items-center gap-2">
                       <Type className="h-4 w-4" /> Text
                     </TabsTrigger>
@@ -203,9 +217,6 @@ const Creator = () => {
                     </TabsTrigger>
                     <TabsTrigger value="video" className="flex items-center gap-2">
                       <Video className="h-4 w-4" /> Video
-                    </TabsTrigger>
-                    <TabsTrigger value="ideas" className="flex items-center gap-2">
-                      <Lightbulb className="h-4 w-4" /> Viral Ideas
                     </TabsTrigger>
                   </TabsList>
                   
@@ -333,19 +344,6 @@ const Creator = () => {
                       />
                     </div>
                   </TabsContent>
-                  
-                  <TabsContent value="ideas" className="pt-4 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="ideas-prompt">Enter a topic to generate viral content ideas</Label>
-                      <Textarea
-                        id="ideas-prompt"
-                        placeholder="E.g. Sustainable fashion, home workouts, digital marketing, etc."
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        rows={3}
-                      />
-                    </div>
-                  </TabsContent>
                 </Tabs>
                 
                 {contentType !== 'ideas' && (
@@ -384,17 +382,6 @@ const Creator = () => {
                         step={1}
                       />
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="use-advanced-ai"
-                      checked={useAdvancedAI}
-                      onCheckedChange={setUseAdvancedAI}
-                    />
-                    <Label htmlFor="use-advanced-ai">
-                      Use Claude 3.5 Sonnet (GPT-4o is default)
-                    </Label>
                   </div>
                   
                   <Button 
@@ -445,36 +432,39 @@ const Creator = () => {
           
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Viral Ideas Generator Card */}
             <Card>
               <CardHeader>
-                <CardTitle>AI settings</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-yellow-500" /> Viral Ideas Generator
+                </CardTitle>
                 <CardDescription>
-                  Choose your preferred AI model
+                  Get winning content ideas for your niche
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {aiModels.map((model) => (
-                  <div
-                    key={model.id}
-                    className={`p-4 rounded-lg border-2 ${model.id === (useAdvancedAI ? 'claude' : 'gpt4o') ? 'border-primary' : 'border-border'} cursor-pointer transition-all hover:border-primary hover:shadow-sm`}
-                    onClick={() => setUseAdvancedAI(model.id === 'claude')}
-                  >
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium">{model.name}</h3>
-                      {model.id === (useAdvancedAI ? 'claude' : 'gpt4o') && (
-                        <div className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                          Active
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {model.description}
-                    </p>
-                  </div>
-                ))}
-                <p className="text-xs text-muted-foreground mt-2">
-                  Claude 3.5 Sonnet is available for paid plans.
-                </p>
+                <div className="space-y-2">
+                  <Label htmlFor="viral-topic">Enter a topic</Label>
+                  <Textarea
+                    id="viral-topic"
+                    placeholder="E.g. Sustainable fashion, home workouts, digital marketing, etc."
+                    value={viralIdeaPrompt}
+                    onChange={(e) => setViralIdeaPrompt(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <Button 
+                  onClick={handleGenerateViralIdeas} 
+                  disabled={isGenerating} 
+                  className="w-full"
+                  variant="secondary"
+                >
+                  {isGenerating ? (
+                    <>Generating<span className="animate-pulse">...</span></>
+                  ) : (
+                    <>Generate Viral Ideas</>
+                  )}
+                </Button>
               </CardContent>
             </Card>
             
